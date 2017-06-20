@@ -8,12 +8,17 @@ import subprocess
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('ref', nargs='?', default='HEAD')
+    p.add_argument('--login_or_token', default=None)
+    p.add_argument('--password', default=None)
     return p.parse_args()
 
 def main():
     args = parse_args()
     ref = subprocess.check_output(['git', 'rev-parse', args.ref]).strip()
-    G = github.Github()
+
+    login = None if args.login_or_token == '' else args.login_or_token
+    password = None if args.password == '' else args.password
+    G = github.Github(login, password)
 
     res = G.search_issues(ref)
     issue_states = [issue.state == 'closed' for issue in res]
